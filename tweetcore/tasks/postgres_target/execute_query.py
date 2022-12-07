@@ -1,4 +1,4 @@
-from tweetcore.lib.postgres_target import connect
+from tweetcore.tasks.postgres_target import connect
 
 
 def execute_postgre_query(configuration: dict = None,

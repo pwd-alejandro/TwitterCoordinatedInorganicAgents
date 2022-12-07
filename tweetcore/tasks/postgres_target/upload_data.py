@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 import pandas as pd
 import numpy as np
-from tweetcore.lib.postgres_target import connect
-from tweetcore.lib.postgres_target import execute_query
-from tweetcore.lib.postgres_target import download_data
+from tweetcore.tasks.postgres_target import connect
+from tweetcore.tasks.postgres_target import execute_query
+from tweetcore.tasks.postgres_target import download_data
 import global_settings as gs
 
 
@@ -131,7 +131,7 @@ def write_postgre_table(configuration: dict = None,
                         schema: str = None,
                         if_exists_then_wat: str = 'replace'):
 
-    splits = round(data.shape[0] / 2000)
+    splits = round(data.shape[0] / 10000)
     if splits > 1:
         j = 0
         for d_i in np.array_split(data, splits):

@@ -135,4 +135,4 @@ tweetcore/credentials.py
 
 # Folders
 analytics
-rabbit_app/data
+external_data

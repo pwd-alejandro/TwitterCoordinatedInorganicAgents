@@ -1,4 +1,4 @@
-from tweetcore.lib.postgres_target import execute_query
+from tweetcore.tasks.postgres_target import execute_query
 import pandas as pd
 
 
