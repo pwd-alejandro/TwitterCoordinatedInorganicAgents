@@ -33,7 +33,7 @@ def migrate_tweets(path_to_external_data: str = None,
             resp = pd.concat([resp, temp_df])
 
             i += 1
-            if (i > 0) & (i % 100000 == 0):
+            if (i > 0) & (i % 10000 == 0):
                 upload_data.write_postgre_table(configuration=config,
                                                 data=resp,
                                                 table_name=hit_table,

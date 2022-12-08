@@ -131,7 +131,7 @@ def write_postgre_table(configuration: dict = None,
                         schema: str = None,
                         if_exists_then_wat: str = 'replace'):
 
-    splits = round(data.shape[0] / 10000)
+    splits = round(data.shape[0] / 2000)
     if splits > 1:
         j = 0
         for d_i in np.array_split(data, splits):
