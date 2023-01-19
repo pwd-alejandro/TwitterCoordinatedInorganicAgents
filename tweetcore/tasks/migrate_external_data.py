@@ -1,5 +1,6 @@
 import ijson
 import pandas as pd
+
 import credentials_refactor
 from tweetcore.tasks.postgres_target import upload_data
 from tweetcore.twitter_utils import tweet_utils
@@ -13,6 +14,7 @@ def migrate_tweets(path_to_external_data: str = None,
         i = 0
         resp = None
         for record in ijson.items(f, "item"):
+
             temp_df = pd.DataFrame(
                 data={
                     'id': record['id'],
@@ -22,7 +24,9 @@ def migrate_tweets(path_to_external_data: str = None,
                     'text': record["text"],
                     'language': record["lang"],
                     'geo_location': record['geo'] is not None,
-                    'referenced_tweets': [record['referenced_tweets']],
+                    'referenced_tweets_types': [
+                        tweet_utils.get_referenced_tweets_types(record["referenced_tweets"])],
+                    'referenced_tweets_ids': [tweet_utils.get_referenced_tweets_ids(record["referenced_tweets"])],
                     'user_mentions': [tweet_utils.get_user_mentions(record['entities'])],
                     'media_types': [tweet_utils.get_media(record['entities'])],
                     'in_reply_to_user_id': record['in_reply_to_user_id'],
@@ -41,7 +45,6 @@ def migrate_tweets(path_to_external_data: str = None,
                                                 if_exists_then_wat='append')
                 resp = None
 
-        breakpoint()
         upload_data.write_postgre_table(configuration=config,
                                         data=resp,
                                         table_name=hit_table,
@@ -51,9 +54,7 @@ def migrate_tweets(path_to_external_data: str = None,
 
 conf = credentials_refactor.return_credentials()
 
-migrate_tweets(path_to_external_data="../../external_data/tweet_0.json",
+migrate_tweets(path_to_external_data="../../external_data/tweet_3.json",
                hit_table='test',
                hit_schema='tweetcore',
                config=conf)
-
-
