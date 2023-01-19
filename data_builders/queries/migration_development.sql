@@ -1,5 +1,5 @@
-create table tweetcore.migration_development_200k as
-with humans_100k as (
+create table tweetcore.migration_development as
+with humans_500k as (
     select t0.id      as tweet_id,
            t0.text,
            t1.label,
@@ -9,7 +9,8 @@ with humans_100k as (
                        on t0.author_id:: varchar = t1.user_id
     where t0.language = 'en'
       and t1.label = 'human'
-    limit 100000
+    order by random()
+    limit 500000
 ),
 
      bots_100k as (
@@ -22,14 +23,15 @@ with humans_100k as (
                             on t0.author_id:: varchar = t1.user_id
          where t0.language = 'en'
            and t1.label = 'bot'
+         order by random()
          limit 100000
      )
 
-select row_number() over (order by tweet_id) as index,
+select row_number() over (order by tweet_id) -1 as index,
        t0.*
 from (
          select *
-         from humans_100k
+         from humans_500k
          union all
          select *
          from bots_100k
