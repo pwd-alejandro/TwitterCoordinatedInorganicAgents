@@ -4,11 +4,10 @@ with humans_500k as (
            t0.text,
            t1.label,
            t1.user_id as author_id
-    from tweetcore.test t0
+    from tweetcore.english_tweets t0
              left join tweetcore.labels t1
                        on t0.author_id:: varchar = t1.user_id
-    where t0.language = 'en'
-      and t1.label = 'human'
+    where t1.label = 'human'
     order by random()
     limit 500000
 ),
@@ -18,11 +17,10 @@ with humans_500k as (
                 t0.text,
                 t1.label,
                 t1.user_id as author_id
-         from tweetcore.test t0
+         from tweetcore.english_tweets t0
                   left join tweetcore.labels t1
                             on t0.author_id:: varchar = t1.user_id
-         where t0.language = 'en'
-           and t1.label = 'bot'
+         where t1.label = 'bot'
          order by random()
          limit 100000
      )

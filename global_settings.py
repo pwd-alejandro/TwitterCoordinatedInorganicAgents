@@ -9,7 +9,6 @@ QUERY_EXISTS = '''
 
 '''
 
-
 QUERY_CHECK = '''  
 
         SELECT {column}
@@ -19,3 +18,20 @@ QUERY_CHECK = '''
         LIMIT 1
 
 '''
+
+dummy_tweet = '''
+
+    This is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This 
+    is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a 
+    dummy text to max out the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy 
+    text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text 
+    to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to 
+    max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max 
+    out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
+    the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens 
+
+'''
+
+max_char_tweet = 140

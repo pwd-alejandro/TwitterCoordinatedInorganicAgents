@@ -9,6 +9,7 @@ from tweetcore.twitter_utils import tweet_utils
 def migrate_tweets(path_to_external_data: str = None,
                    hit_table: str = None,
                    hit_schema: str = None,
+                   resume: int = None,
                    config: dict = None) -> None:
     with open(path_to_external_data, "rb") as f:
         i = 0
@@ -38,11 +39,13 @@ def migrate_tweets(path_to_external_data: str = None,
 
             i += 1
             if (i > 0) & (i % 10000 == 0):
-                upload_data.write_postgre_table(configuration=config,
-                                                data=resp,
-                                                table_name=hit_table,
-                                                schema=hit_schema,
-                                                if_exists_then_wat='append')
+                if i > resume:
+                    print(f'Resuming at {i}')
+                    upload_data.write_postgre_table(configuration=config,
+                                                    data=resp,
+                                                    table_name=hit_table,
+                                                    schema=hit_schema,
+                                                    if_exists_then_wat='append')
                 resp = None
 
         upload_data.write_postgre_table(configuration=config,
@@ -54,7 +57,8 @@ def migrate_tweets(path_to_external_data: str = None,
 
 conf = credentials_refactor.return_credentials()
 
-migrate_tweets(path_to_external_data="../../external_data/tweet_3.json",
-               hit_table='test',
+migrate_tweets(path_to_external_data="../../external_data/tweet_2.json",
+               hit_table='tweet_2',
                hit_schema='tweetcore',
+               resume=0,
                config=conf)

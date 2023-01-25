@@ -34,3 +34,19 @@ def get_type_tweet(referenced_tweets: list = None) -> str:
         tw_type = 'post'
 
     return tw_type
+
+
+def get_referenced_tweets_types(referenced_tweets: list = None) -> list:
+    if referenced_tweets is not None:
+        ref_types = [i["type"] for i in referenced_tweets]
+    else:
+        ref_types = []
+    return ref_types
+
+
+def get_referenced_tweets_ids(referenced_tweets: list = None) -> list:
+    if referenced_tweets is not None:
+        ref_ids = [str(i["id"]) for i in referenced_tweets]
+    else:
+        ref_ids = []
+    return ref_ids

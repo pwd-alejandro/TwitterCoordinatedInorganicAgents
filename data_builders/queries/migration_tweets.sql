@@ -1,0 +1,27 @@
+create table tweetcore.tweets as
+select *
+from tweetcore.tweet_0
+union all
+select *
+from tweetcore.tweet_1
+union all
+select *
+from tweetcore.tweet_2
+union all
+select *
+from tweetcore.tweet_3
+union all
+select *
+from tweetcore.tweet_4
+union all
+select *
+from tweetcore.tweet_5
+union all
+select *
+from tweetcore.tweet_6
+union all
+select *
+from tweetcore.tweet_7
+union all
+select *
+from tweetcore.tweet_8
