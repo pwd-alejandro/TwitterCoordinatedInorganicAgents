@@ -35,3 +35,5 @@ dummy_tweet = '''
 '''
 
 max_char_tweet = 140
+
+data_path = 'E:/thesis/data'

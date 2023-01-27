@@ -13,7 +13,6 @@ from tweetcore.tasks.postgres_target import download_data
 def get_representation(data: pd.Series = None,
                        model_name: str = 'distilbert-base-uncased',
                        save_path: str = None,
-                       resume_checkpoint: int = None,
                        splits: int = 30):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModel.from_pretrained(model_name).to('cuda')
@@ -21,7 +20,7 @@ def get_representation(data: pd.Series = None,
     representation = np.zeros((1, gs.max_char_tweet, emb_dim))
     data_splits = np.array_split(data.values, splits)
     i = 0
-    for data_batch in data_splits[resume_checkpoint+1:]:
+    for data_batch in data_splits:
         tokens_batch = tokenizer([gs.dummy_tweet] + list(data_batch),
                                  truncation=True,
                                  max_length=gs.max_char_tweet,
@@ -39,12 +38,12 @@ def get_representation(data: pd.Series = None,
         gc.collect()
         i += 1
         if (i > 0) & (i % 50 == 0):
-            np.save(f'{save_path}_{resume_checkpoint + i}', representation[1:, :, :])
-            print(f'Saved at {resume_checkpoint + i}')
+            np.save(f'{save_path}_{i}', representation[1:, :, :])
+            print(f'Saved at {i}')
             del representation
             gc.collect()
             representation = np.zeros((1, gs.max_char_tweet, emb_dim))
-        print(f'Done {resume_checkpoint + i}/{splits}')
+        print(f'Done {i}/{splits}')
 
     np.save(f'{save_path}_final', representation[1:, :, :])
     del representation
@@ -60,9 +59,9 @@ data_dev = download_data.pandas_df_from_postgre_query(configuration=conf,
                                                       --limit 100
                                                       '''
                                                       )
-# breakpoint()
+
 get_representation(data=data_dev.text,
                    model_name='distilbert-base-uncased',
-                   save_path=f'../../../data/nlp/embeddings/{str(gs.max_char_tweet)}_2/development_{str(gs.max_char_tweet)}',
-                   resume_checkpoint=1850,
+                   save_path=f'{gs.data_path}/nlp/embeddings/'
+                             f'{str(gs.max_char_tweet)}/development_{str(gs.max_char_tweet)}',
                    splits=6000)
