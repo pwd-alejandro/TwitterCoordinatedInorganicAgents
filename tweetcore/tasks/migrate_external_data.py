@@ -3,7 +3,7 @@ import pandas as pd
 
 import credentials_refactor
 from tweetcore.tasks.postgres_target import upload_data
-from tweetcore.twitter_utils import tweet_utils
+from tweetcore.twitter_utils import tweet_utils, user_utils, utils
 
 
 def migrate_tweets(path_to_external_data: str = None,
@@ -55,10 +55,95 @@ def migrate_tweets(path_to_external_data: str = None,
                                         if_exists_then_wat='append')
 
 
-conf = credentials_refactor.return_credentials()
+def migrate_users(path_to_external_data: str = None,
+                  hit_table: str = None,
+                  hit_schema: str = None,
+                  resume: int = None,
+                  config: dict = None) -> None:
+    print(f'--- Resuming at {resume} ---')
+    with open(path_to_external_data, "rb") as f:
+        i = 0
+        resp = None
+        for record in ijson.items(f, "item"):
+            i += 1
+            if i % 100000 == 0:
+                print(i)
+            if i > resume:
+                if record["entities"] is not None:
+                    cashtags, hashtags, mentions, urls = user_utils.get_description_entities(
+                        entities=record['entities'])
+                else:
+                    cashtags, hashtags, mentions, urls = None, None, None, None
 
-migrate_tweets(path_to_external_data="../../external_data/tweet_2.json",
-               hit_table='tweet_2',
-               hit_schema='tweetcore',
-               resume=0,
-               config=conf)
+                name_length, name_words, name_numbers, \
+                name_special_char, name_emojis, name_capital_letters = utils.get_text_attributes(
+                    text=record["name"],
+                    word_delimiter=' ')
+                username_length, username_words, username_numbers, \
+                username_special_char, username_emojis, username_capital_letters = utils.get_text_attributes(
+                    text=record["username"],
+                    word_delimiter='_')
+                temp_df = pd.DataFrame(
+                    data={
+                        'user_id': record['id'],
+                        'joined_twitter': record['created_at'],
+                        'username': record["username"],
+                        'username_length': username_length,
+                        'username_words': username_words,
+                        'username_numbers': username_numbers,
+                        'username_special_char': username_special_char,
+                        'username_emojis': username_emojis,
+                        'username_capital_letters': username_capital_letters,
+                        'name': record["name"],
+                        'name_length': name_length,
+                        'name_words': name_words,
+                        'name_numbers': name_numbers,
+                        'name_special_char': name_special_char,
+                        'name_emojis': name_emojis,
+                        'name_capital_letters': name_capital_letters,
+                        'description': record["description"].replace("\x00", "\uFFFD"),
+                        'description_cashtags': [cashtags],
+                        'description_hashtags': [hashtags],
+                        'description_mentions': [mentions],
+                        'description_urls': [urls],
+                        'location': record["location"],
+                        'pinned_tweet_id': record["pinned_tweet_id"],
+                        'default_profile_picture': 'default_profile_normal' in record["profile_image_url"],
+                        'followers_count': record["public_metrics"]["followers_count"],
+                        'following_count': record["public_metrics"]["following_count"],
+                        'tweet_count': record["public_metrics"]["tweet_count"],
+                        'listed_count': record["public_metrics"]["listed_count"],
+                        'url': record["url"],
+                        'withheld': [user_utils.get_withheld_countries(record)],
+                        'protected': record["protected"],
+                        'verified': record["verified"],
+                    }
+                )
+                resp = pd.concat([resp, temp_df])
+
+                if (i > 0) & (i % 10000 == 0):
+                    upload_data.write_postgre_table(configuration=config,
+                                                    data=resp,
+                                                    table_name=hit_table,
+                                                    schema=hit_schema,
+                                                    if_exists_then_wat='append')
+                    resp = None
+        upload_data.write_postgre_table(configuration=config,
+                                        data=resp,
+                                        table_name=hit_table,
+                                        schema=hit_schema,
+                                        if_exists_then_wat='append')
+
+
+conf = credentials_refactor.return_credentials()
+migrate_users(path_to_external_data="../../external_data/user.json",
+              hit_table='users',
+              hit_schema='tweetcore',
+              resume=0,
+              config=conf)
+# breakpoint()
+# migrate_tweets(path_to_external_data="../../external_data/tweet_2.json",
+#               hit_table='tweet_2',
+#               hit_schema='tweetcore',
+#               resume=0,
+#               config=conf)

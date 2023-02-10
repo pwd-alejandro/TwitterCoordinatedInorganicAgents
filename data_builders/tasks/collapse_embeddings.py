@@ -29,7 +29,8 @@ def read_embeddings_simple(path: str = None,
                            files: list = None,
                            number_of_files: int = None,
                            emb_dim: int = 768,
-                           collapse_tweet: bool = False):
+                           collapse_tweet: bool = False,
+                           save_on_disk: bool = False) -> (np.memmap, str):
     if files is None:
         filenames = get_files(dir_path=path)
 
@@ -41,7 +42,7 @@ def read_embeddings_simple(path: str = None,
         save_path = clean_temporal(path=path + '/development_140_final.npy',
                                    shape=(1, emb_dim))
         answer = np.memmap(save_path,
-                           mode='r+',
+                           mode='w+',
                            dtype=np.float64,
                            shape=(number_of_files * 5000, emb_dim))
         i = 0
@@ -57,7 +58,7 @@ def read_embeddings_simple(path: str = None,
         save_path = clean_temporal(path=path + '/development_140_final.npy',
                                    shape=(1, gs.max_char_tweet, emb_dim))
         answer = np.memmap(save_path,
-                           mode='r+',
+                           mode='w+',
                            dtype=np.float64,
                            shape=(number_of_files * 5000, gs.max_char_tweet, emb_dim))
         i = 0
@@ -69,8 +70,13 @@ def read_embeddings_simple(path: str = None,
             clear_output(wait=True)
             print(f'{i}/{number_of_files}')
         print('--- Ended ---')
+    permanent_path = None
+    if save_on_disk:
+        permanent_path = save_path.split('.')
+        permanent_path = '.'.join([permanent_path[0] + '_permanent', permanent_path[1]])
+        np.save(permanent_path, answer)
 
-    return answer
+    return answer, permanent_path
 
 
 def read_embeddings_advanced(path: str = None,
