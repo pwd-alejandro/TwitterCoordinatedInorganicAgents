@@ -48,7 +48,7 @@ with user_features as (
     from redacted_tables.users
 ),
 
-mentions_features as (
+     mentions_features as (
          select user_id_anon                                                                       as user_id_anon,
                 total_number_mentions                                                              as total_number_mentions,
                 number_tweets                                                                      as number_tweets_sample,
@@ -106,65 +106,110 @@ mentions_features as (
               ) t0
      ),
 
-core_activity_features as (
-         select t0.user_id_anon,
-                mode() within group (order by month_activity)                              as mode_month_activity,
-                mode() within group (order by day_activity)                                as mode_day_activity,
-                mode() within group (order by day_of_week_activity)                        as mode_day_of_week_activity,
-                mode() within group (order by hour_activity)                               as mode_hour_activity,
-                mode() within group (order by type_corrected)                              as mode_type_corrected,
-                mode() within group (order by language)                                    as mode_language,
-                count(distinct language)                                                   as number_languages,
-                sum(case when possibly_sensitive then 1 else 0 end)                        as count_sensitive,
-                sum(case when media_types <> '{}' then 1 else 0 end)                       as count_media,
-                sum(case when geo_location then 1 else 0 end)                              as count_geo,
-                sum(case when type_corrected = 'post' then 1 else 0 end)                   as count_post,
-                sum(case when type_corrected = 'retweeted' then 1 else 0 end)              as count_retweeted,
-                sum(case when type_corrected = 'replied_to' then 1 else 0 end)             as count_replied_to,
-                max(freq_language)                                                         as count_dominant_language,
-                count(0),
-                count(distinct tweet_id_anon)                                              as number_tweets,
-                max(less_used_language)                                                    as less_used_language,
-                min(less_used_language),
-                max(minutes_since_last_created_at)                                         as max_actv_freq_minutes,
-                min(minutes_since_last_created_at)                                         as min_actv_freq_minutes,
-                avg(minutes_since_last_created_at)                                         as avg_actv_freq_minutes,
-                percentile_disc(0.5) within group (order by minutes_since_last_created_at) as median_actv_freq_minutes
-
-
+     core_activity_features as (
+         select user_id_anon                                                          as user_id_anon,
+                mode_month_activity                                                   as mode_month_activity,
+                mode_day_activity                                                     as mode_day_activity,
+                mode_day_of_week_activity                                             as mode_day_of_week_activity,
+                mode_hour_activity                                                    as mode_hour_activity,
+                mode_type_corrected                                                   as mode_type_corrected,
+                mode_language                                                         as mode_language,
+                number_languages                                                      as number_languages,
+                number_tweets                                                         as core_number_tweets,
+                less_used_language                                                    as less_used_language,
+                max_actv_freq_minutes                                                 as max_actv_freq_minutes,
+                min_actv_freq_minutes                                                 as min_actv_freq_minutes,
+                avg_actv_freq_minutes                                                 as avg_actv_freq_minutes,
+                median_actv_freq_minutes                                              as median_actv_freq_minutes,
+                case
+                    when number_tweets = 0 then -1
+                    else
+                        count_sensitive / number_tweets::double precision end         as rate_sensitive_tweets,
+                case
+                    when number_tweets = 0 then -1
+                    else
+                        count_media / number_tweets::double precision end             as rate_media_tweets,
+                case
+                    when number_tweets = 0 then -1
+                    else
+                        count_geo / number_tweets::double precision end               as rate_geo_tweets,
+                case
+                    when number_tweets = 0 then -1
+                    else
+                        count_post / number_tweets::double precision end              as rate_post_tweets,
+                case
+                    when number_tweets = 0 then -1
+                    else
+                        count_retweeted / number_tweets::double precision end         as rate_retweeted_tweets,
+                case
+                    when number_tweets = 0 then -1
+                    else
+                        count_replied_to / number_tweets::double precision end        as rate_replied_to_tweets,
+                case
+                    when number_tweets = 0 then -1
+                    else
+                        count_dominant_language / number_tweets::double precision end as rate_dominant_language_tweets
          from (
-                  select user_id_anon,
-                         tweet_id_anon,
-                         language,
-                         created_at,
-                         extract(month from created_at::timestamp)               as month_activity,
-                         extract(day from created_at::timestamp)                 as day_activity,
-                         extract(isodow from created_at::timestamp)              as day_of_week_activity,
-                         extract(hour from created_at::timestamp)                as hour_activity,
-                         array_length(user_mentions_anon::varchar[], 1)          as number_mentions,
-                         previous_created_at,
-                         extract(epoch from (created_at::timestamp - previous_created_at::timestamp)) /
-                         60                                                      as minutes_since_last_created_at,
-                         possibly_sensitive,
-                         media_types,
-                         geo_location,
-                         case
-                             when user_id_anon = in_reply_to_user_id_anon then 'thread'
-                             when type = 'post' and in_reply_to_user_id_anon is not null then 'replied_to'
-                             when type = 'post' and text like 'RT @%' then 'retweeted'
-                             else type end                                       as type_corrected,
-                         freq_language                                           as freq_language,
-                         first_value(language)
-                         over (partition by user_id_anon order by freq_language) as less_used_language
+                  select t0.user_id_anon,
+                         mode() within group (order by month_activity)                  as mode_month_activity,
+                         mode() within group (order by day_activity)                    as mode_day_activity,
+                         mode() within group (order by day_of_week_activity)            as mode_day_of_week_activity,
+                         mode() within group (order by hour_activity)                   as mode_hour_activity,
+                         mode() within group (order by type_corrected)                  as mode_type_corrected,
+                         mode() within group (order by language)                        as mode_language,
+                         count(distinct language)                                       as number_languages,
+                         sum(case when possibly_sensitive then 1 else 0 end)            as count_sensitive,
+                         sum(case when media_types <> '{}' then 1 else 0 end)           as count_media,
+                         sum(case when geo_location then 1 else 0 end)                  as count_geo,
+                         sum(case when type_corrected = 'post' then 1 else 0 end)       as count_post,
+                         sum(case when type_corrected = 'retweeted' then 1 else 0 end)  as count_retweeted,
+                         sum(case when type_corrected = 'replied_to' then 1 else 0 end) as count_replied_to,
+                         max(freq_language)                                             as count_dominant_language,
+                         count(0),
+                         count(distinct tweet_id_anon)                                  as number_tweets,
+                         max(less_used_language)                                        as less_used_language,
+                         min(less_used_language),
+                         max(minutes_since_last_created_at)                             as max_actv_freq_minutes,
+                         min(minutes_since_last_created_at)                             as min_actv_freq_minutes,
+                         avg(minutes_since_last_created_at)                             as avg_actv_freq_minutes,
+                         percentile_disc(0.5)
+                         within group (order by minutes_since_last_created_at)          as median_actv_freq_minutes
+
+
                   from (
-                           select t0.*,
-                                  count(0) over (partition by user_id_anon, language)       as freq_language,
-                                  lag(created_at, -1)
-                                  over (partition by user_id_anon order by created_at desc) as previous_created_at
-                           from redacted_tables.dev_act t0
+                           select user_id_anon,
+                                  tweet_id_anon,
+                                  language,
+                                  created_at,
+                                  extract(month from created_at::timestamp)               as month_activity,
+                                  extract(day from created_at::timestamp)                 as day_activity,
+                                  extract(isodow from created_at::timestamp)              as day_of_week_activity,
+                                  extract(hour from created_at::timestamp)                as hour_activity,
+                                  array_length(user_mentions_anon::varchar[], 1)          as number_mentions,
+                                  previous_created_at,
+                                  extract(epoch from (created_at::timestamp - previous_created_at::timestamp)) /
+                                  60                                                      as minutes_since_last_created_at,
+                                  possibly_sensitive,
+                                  media_types,
+                                  geo_location,
+                                  case
+                                      when user_id_anon = in_reply_to_user_id_anon then 'thread'
+                                      when type = 'post' and in_reply_to_user_id_anon is not null then 'replied_to'
+                                      when type = 'post' and text like 'RT @%' then 'retweeted'
+                                      else type end                                       as type_corrected,
+                                  freq_language                                           as freq_language,
+                                  first_value(language)
+                                  over (partition by user_id_anon order by freq_language) as less_used_language
+                           from (
+                                    select t0.*,
+                                           count(0) over (partition by user_id_anon, language)       as freq_language,
+                                           lag(created_at, -1)
+                                           over (partition by user_id_anon order by created_at desc) as previous_created_at
+                                    from redacted_tables.dev_act t0
+                                ) t0
                        ) t0
+                  group by 1
               ) t0
-         group by 1
      );
 
 
