@@ -216,12 +216,12 @@ with user_features as (
 
 select -- user features
        t0.user_id_anon,
-       t0.year_joined                                   as uuu_year_joined,
-       t0.month_joined                                  as uuu_month_joined,
-       t0.day_of_month_joined                           as uuu_day_of_month_joined,
-       t0.day_of_week_joined                            as uuu_day_of_week_joined,
-       t0.joined_weekend                                as uuu_joined_weekend,
-       t0.hour_joined                                   as uuu_hour_joined,
+       t0.year_joined::int                              as uuu_year_joined,
+       t0.month_joined::int                             as uuu_month_joined,
+       t0.day_of_month_joined::int                      as uuu_day_of_month_joined,
+       t0.day_of_week_joined::int                       as uuu_day_of_week_joined,
+       t0.joined_weekend::int                           as uuu_joined_weekend,
+       t0.hour_joined::int                              as uuu_hour_joined,
        t0.username_length                               as uuu_username_length,
        t0.fraction_numbers_username                     as uuu_fraction_numbers_username,
        t0.fraction_emojis_username                      as uuu_fraction_emojis_username,
