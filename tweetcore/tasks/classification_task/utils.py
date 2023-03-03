@@ -21,19 +21,31 @@ def make_report(model,
                 y_test: pd.Series,
                 x_test: pd.DataFrame,
                 include: list = None,
+                personalized: dict = None,
                 scale: float = 5,
-                pad: int = 2):
+                pad: int = 2,
+                **kwargs):
     for i in include:
         if i not in ['roc', 'pr', 'lift', 'class_report', 'top_features']:
             print(
                 f"'{i}' is not valid. "
                 f"Options are 'roc', 'pr', 'lift', 'class_report', 'top_features', please select one")
             raise
+
     y_true = y_test.copy()
     y_pre = model.predict(x_test)
-    number_metrics = len(include)
-    rows, columns = get_size_grid(number_metrics)
+
+    rows, columns = get_size_grid(len(include))
     fig = plt.figure(figsize=(columns * scale, rows * scale))
+
+    roc_auc = None
+    report = None
+    pr_auc = None
+    personalized_metrics = {}
+    if personalized is not None:
+        for metric in personalized.keys():
+            personalized_metrics[metric] = personalized[metric](y_true, y_pre, **kwargs)
+
     for i in range(len(include)):
         if include[i] == 'roc':
             ax = plt.subplot(rows, columns, i + 1)
@@ -85,3 +97,6 @@ def make_report(model,
 
     fig.tight_layout(pad=pad)
     plt.show()
+    plt.close()
+
+    return roc_auc, pr_auc, report, personalized_metrics
