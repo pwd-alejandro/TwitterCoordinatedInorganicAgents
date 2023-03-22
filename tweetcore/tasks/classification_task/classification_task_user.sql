@@ -1,4 +1,4 @@
-create table redacted_tables.features_user_classification as
+--create table redacted_tables.features_user_classification as
 with user_features as (
     select user_id_anon,
            -- datetime joined
@@ -250,10 +250,12 @@ select -- user features
        t0.number_countries_withheld                     as uuu_number_countries_withheld,
        t0.is_protected                                  as uuu_is_protected,
        t0.is_verified                                   as uuu_is_verified,
-       -- activity features
-       t1.total_number_mentions                         as aaa_total_number_mentions,
        -- check
+       t2.core_number_tweets                            as ccc_core_number_tweets,
+       t2.user_id_anon                                  as ccc_user_id_anon,
+       -- activity features
        t1.number_tweets_sample                          as aaa_number_tweets_sample,
+       t1.total_number_mentions                         as aaa_total_number_mentions,
        t1.number_tweets_with_mention                    as aaa_number_tweets_with_mention,
        t1.unique_number_mentions                        as aaa_unique_number_mentions,
        t1.avg_number_mentions_tweet                     as aaa_avg_number_mentions_tweet,
@@ -263,21 +265,18 @@ select -- user features
        t1.rate_tweets_with_mention                      as aaa_rate_tweets_with_mention,
        t1.rate_unique_total_mentions                    as aaa_rate_unique_total_mentions,
        t1.max_number_mentions_tweet                     as aaa_max_number_mentions_tweet,
-       t2.user_id_anon                                  as aaa_user_id_anon,
-       t2.mode_month_activity                           as aaa_mode_month_activity,
-       t2.mode_day_activity                             as aaa_mode_day_activity,
-       t2.mode_day_of_week_activity                     as aaa_mode_day_of_week_activity,
-       t2.mode_hour_activity                            as aaa_mode_hour_activity,
+       t2.mode_month_activity::int                      as aaa_mode_month_activity,
+       t2.mode_day_activity::int                        as aaa_mode_day_activity,
+       t2.mode_day_of_week_activity::int                as aaa_mode_day_of_week_activity,
+       t2.mode_hour_activity::int                       as aaa_mode_hour_activity,
        t2.mode_type_corrected                           as aaa_mode_type_corrected,
        t2.mode_language                                 as aaa_mode_language,
        t2.number_languages                              as aaa_number_languages,
-       -- check
-       t2.core_number_tweets                            as aaa_core_number_tweets,
        t2.less_used_language                            as aaa_less_used_language,
-       t2.max_actv_freq_minutes                         as aaa_max_actv_freq_minutes,
-       t2.min_actv_freq_minutes                         as aaa_min_actv_freq_minutes,
-       t2.avg_actv_freq_minutes                         as aaa_avg_actv_freq_minutes,
-       t2.median_actv_freq_minutes                      as aaa_median_actv_freq_minutes,
+       t2.max_actv_freq_minutes::float8                 as aaa_max_actv_freq_minutes,
+       t2.min_actv_freq_minutes::float8                 as aaa_min_actv_freq_minutes,
+       t2.avg_actv_freq_minutes::float8                 as aaa_avg_actv_freq_minutes,
+       t2.median_actv_freq_minutes::float8              as aaa_median_actv_freq_minutes,
        t2.rate_sensitive_tweets                         as aaa_rate_sensitive_tweets,
        t2.rate_media_tweets                             as aaa_rate_media_tweets,
        t2.rate_geo_tweets                               as aaa_rate_geo_tweets,

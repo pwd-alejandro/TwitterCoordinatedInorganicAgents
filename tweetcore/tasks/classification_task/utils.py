@@ -72,13 +72,42 @@ def make_report(model,
             ax1.set_xlabel('Recall')
             ax1.set_title('PR curve ')
             ax1.legend(loc='best')
+        elif include[i] == 'lift':
+            df_dict = {'actual': list(y_true), 'pred': list(y_pre)}
+            df = pd.DataFrame(df_dict)
+            pred_ranks = pd.qcut(df['pred'].rank(method='first'), 100, labels=False)
+            pred_percentiles = df.groupby(pred_ranks).mean()
+            ax2 = plt.subplot(rows, columns, i + 1)
+            ax2.set_title('Lift Chart', y=1)
+            ax2.plot(np.arange(.01, 1.01, .01),
+                     np.array(pred_percentiles['pred']),
+                     color='darkorange',
+                     lw=2,
+                     label='Prediction')
+            ax2.plot(np.arange(.01, 1.01, .01),
+                     np.array(pred_percentiles['actual']),
+                     color='navy',
+                     lw=2,
+                     linestyle='--',
+                     label='Actual')
+            ax2.plot(np.arange(.01, 1.01, .01),
+                     [np.mean(y_true)] * 100,
+                     color='red',
+                     lw=2,
+                     linestyle='--',
+                     label='No skill')
+            ax2.set_ylabel('Target Average')
+            ax2.set_xlabel('Population Percentile')
+            ax2.set_xlim([0.0, 1])
+            ax2.set_ylim([0, 0.05 + 1])
+            ax2.legend(loc="best")
         elif include[i] == 'class_report':
             report = classification_report(y_test, y_pre, output_dict=True)
             acc = round(report['accuracy'], 4)
             df_report = pd.DataFrame(data=report)[['0', '1']].T
 
-            ax2 = plt.subplot(rows, columns, i + 1)
-            ax2.table(cellText=np.round(df_report.values, 4),
+            ax3 = plt.subplot(rows, columns, i + 1)
+            ax3.table(cellText=np.round(df_report.values, 4),
                       colLabels=df_report.columns,
                       rowLabels=df_report.index.map(lambda x: 'bot' if x == '1' else 'human'),
                       colWidths=[0.2] * 4,
@@ -87,13 +116,13 @@ def make_report(model,
                       colColours=['lightblue'] * 4,
                       rowColours=['lightblue'] * 2)
 
-            ax2.table(cellText=[['', '', acc]],
+            ax3.table(cellText=[['', '', acc]],
                       rowLabels=['Accuracy'],
                       colWidths=[0.2] * 3,
                       bbox=[0.21, 0.17, 0.55, 0.2],
                       edges='open')
-            ax2.set_axis_off()
-            ax2.set_title('Classification report')
+            ax3.set_axis_off()
+            ax3.set_title('Classification report')
 
     fig.tight_layout(pad=pad)
     plt.show()

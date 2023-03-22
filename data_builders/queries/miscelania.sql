@@ -1,13 +1,5 @@
-select c,
-       count(0)
-from (
-select author_id,
-       count(0) as c
-from tweetcore.tweets
-group by 1) t0
-group by 1
+select count(distinct user_id_anon)
+from redacted_tables.features_user_classification
+where aaa_number_tweets_sample = 1
 
-
-select count(distinct author_id)
-from tweetcore.tweets
-where language in ('en', 'und')
+12826
