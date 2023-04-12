@@ -1,4 +1,4 @@
---create table redacted_tables.features_user_classification as
+--create table redacted_tables.features_user_classification_backup as
 with user_features as (
     select user_id_anon,
            -- datetime joined

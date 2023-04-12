@@ -1,4 +1,0 @@
-create table redacted_tables.features_user_classification_backup as
-select *
-from redacted_tables.features_user_classification
-

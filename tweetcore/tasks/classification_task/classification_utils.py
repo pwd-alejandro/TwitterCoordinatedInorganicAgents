@@ -2,14 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from category_encoders import target_encoder
 from scipy.special import softmax, expit
 from sklearn.metrics import roc_curve, auc, precision_recall_curve, classification_report
-from sklearn.model_selection import train_test_split
-from xgboost import XGBClassifier
-
-import credentials_refactor
-from tweetcore.tasks.postgres_target import download_data
 
 
 def get_size_grid(number_metrics: int = None):
@@ -25,9 +19,12 @@ def get_size_grid(number_metrics: int = None):
     return rows, columns
 
 
-def make_report(model,
-                y_test: pd.Series,
-                x_test: pd.DataFrame,
+def make_report(model=None,
+                y_test: pd.Series = None,
+                y_prob_predicted: pd.Series = None,
+                y_pre_predicted: pd.Series = None,
+                x_test: pd.DataFrame = None,
+                threshold: float = 0.5,
                 include: list = None,
                 personalized: dict = None,
                 scale: float = 5,
@@ -40,9 +37,23 @@ def make_report(model,
                 f"Options are 'roc', 'pr', 'lift', 'class_report', 'top_features', please select one")
             raise
 
-    y_true = y_test.copy()
-    y_pre = model.predict(x_test)
+    if y_prob_predicted is not None:
+        y_prob = y_prob_predicted.copy()
+    elif model is not None:
+        y_prob = model.predict_proba(x_test)[:, 1]
+    else:
+        y_prob = np.zeros(y_test.shape[0])
 
+    if y_pre_predicted is not None:
+        y_pre = y_pre_predicted.copy()
+        print('--- ignoring threshold ---')
+    else:
+        y_pre = y_prob.copy()
+        y_pre[y_pre >= threshold] = 1
+        y_pre[y_pre < threshold] = 0
+        print(f'--- using threshold th = {threshold} ---')
+
+    y_true = y_test.copy()
     rows, columns = get_size_grid(len(include))
     fig = plt.figure(figsize=(columns * scale, rows * scale))
 
@@ -57,7 +68,7 @@ def make_report(model,
     for i in range(len(include)):
         if include[i] == 'roc':
             ax = plt.subplot(rows, columns, i + 1)
-            fpr, tpr, thresholds = roc_curve(y_true, y_pre)
+            fpr, tpr, thresholds = roc_curve(y_true, y_prob)
             roc_auc = auc(fpr, tpr)
             ax.plot(fpr, tpr, lw=1, alpha=0.3, label='(AUC = %0.2f)' % roc_auc)
             ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Chance', alpha=.8)
@@ -69,7 +80,7 @@ def make_report(model,
             ax.legend(loc='best')
         elif include[i] == 'pr':
             ax1 = plt.subplot(rows, columns, i + 1)
-            precision, recall, thresholds = precision_recall_curve(y_true, y_pre)
+            precision, recall, thresholds = precision_recall_curve(y_true, y_prob)
             pr_auc = auc(recall, precision)
             ax1.plot(recall, precision, lw=1, alpha=0.3, label='(AUC = %0.2f)' % pr_auc)
             ax1.plot([0, 1], [np.mean(y_test), np.mean(y_test)], linestyle='--', lw=2, color='r', label='Chance',
@@ -81,7 +92,7 @@ def make_report(model,
             ax1.set_title('PR curve ')
             ax1.legend(loc='best')
         elif include[i] == 'lift':
-            df_dict = {'actual': list(y_true), 'pred': list(y_pre)}
+            df_dict = {'actual': list(y_true), 'pred': list(y_prob)}
             df = pd.DataFrame(df_dict)
             pred_ranks = pd.qcut(df['pred'].rank(method='first'), 100, labels=False)
             pred_percentiles = df.groupby(pred_ranks).mean()
@@ -106,12 +117,14 @@ def make_report(model,
                      label='No skill')
             ax2.set_ylabel('Target Average')
             ax2.set_xlabel('Population Percentile')
-            ax2.set_xlim([0.0, 1])
-            ax2.set_ylim([0, 0.05 + 1])
+            ax2.set_xlim([-0.05, 1.05])
+            ax2.set_ylim([-0.05, 1.05])
             ax2.legend(loc="best")
         elif include[i] == 'class_report':
             report = classification_report(y_test, y_pre, output_dict=True)
             acc = round(report['accuracy'], 4)
+            personalized_metrics['Accuracy'] = acc
+            text = [['', '', '', round(i, 2)] for i in personalized_metrics.values()]
             df_report = pd.DataFrame(data=report)[['0', '1']].T
 
             ax3 = plt.subplot(rows, columns, i + 1)
@@ -124,10 +137,10 @@ def make_report(model,
                       colColours=['lightblue'] * 4,
                       rowColours=['lightblue'] * 2)
 
-            ax3.table(cellText=[['', '', acc]],
-                      rowLabels=['Accuracy'],
-                      colWidths=[0.2] * 3,
-                      bbox=[0.21, 0.17, 0.55, 0.2],
+            ax3.table(cellText=text,
+                      rowLabels=list(personalized_metrics.keys()),
+                      colWidths=[0.2] * 4,
+                      bbox=[0.22, 0.16, 0.56, 0.21],
                       edges='open')
             ax3.set_axis_off()
             ax3.set_title('Classification report')
@@ -225,7 +238,8 @@ def bagging_models(models: tuple,
         perceptron = tf.keras.models.Sequential([
             tf.keras.layers.Input(shape=(n_models, 2,)),
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(128, activation='relu'),
+            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dense(32, activation='relu'),
             tf.keras.layers.Dense(1)])
         perceptron.summary()
         perceptron.compile(optimizer='adam',
@@ -253,67 +267,3 @@ def bagging_models(models: tuple,
         y_prob_perceptron = np.array([expit(i[0]) for i in perceptron.predict(prob_test)])
 
         return y_prob_perceptron, None
-
-
-conf = credentials_refactor.return_credentials()
-data = download_data.pandas_df_from_postgre_query(configuration=conf,
-                                                  query='''
-                                                          select *
-                                                          from redacted_tables.features_user_classification
-                                                          limit 1000
-                                                          ''')
-
-# train - test
-user_based_features = [i for i in data.columns if 'uuu' in i]
-activity_based_features = [i for i in data.columns if 'aaa' in i]
-categorical_features = ['aaa_less_used_language', 'aaa_mode_language', 'aaa_mode_type_corrected']
-
-df_master = data.copy()
-df_master.loc[:, categorical_features] = df_master[categorical_features].fillna('-1')
-df_master.loc[:, 'aaa_number_tweets_sample'] = df_master['aaa_number_tweets_sample'].fillna(0)
-df_master.fillna(-1, inplace=True)
-X = df_master.drop(columns="target").copy()
-y = df_master.target.copy()
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.35,
-    random_state=12
-)
-
-# user model
-X_train_user = X_train[user_based_features].copy()
-y_train_user = y_train.copy()
-
-X_test_user = X_test[user_based_features].copy()
-y_test_user = y_test.copy()
-
-model_user = XGBClassifier(eval_metric='auc',
-                           scale_pos_weight=5)
-model_user.fit(X_train_user, y_train_user)
-
-# activity model
-X_train_activity = X_train[activity_based_features].copy()
-y_train_activity = y_train.copy()
-X_test_activity = X_test[activity_based_features].copy()
-y_test_activity = y_test.copy()
-
-cat_encoder = target_encoder.TargetEncoder(cols=categorical_features)
-cat_encoder.fit(X_train_activity, y_train_activity)
-
-X_train_activity_encode = cat_encoder.transform(X_train_activity)
-X_test_activity_encode = cat_encoder.transform(X_test_activity)
-
-model_activity = XGBClassifier(eval_metric='auc',
-                               scale_pos_weight=3)
-
-model_activity.fit(X_train_activity_encode, y_train_activity)
-
-y_prob_bagged, y_binary_bagged = bagging_models(models=(model_user, model_activity),
-                                                test_data=(X_test_user, X_test_activity_encode),
-                                                train_data=(X_train_user, X_train_activity_encode),
-                                                train_labels=y_train,
-                                                thresholds=(0.8, 0.4),
-                                                strategy='sum_prob_softmax',#sum_prob_softmax
-                                                **{'epochs': 50, 'verbose': 1})
