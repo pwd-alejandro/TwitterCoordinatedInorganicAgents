@@ -30,10 +30,86 @@ dummy_tweet = '''
     out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
     the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
     number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens
+    This is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This 
+    is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a 
+    dummy text to max out the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy 
+    text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text 
+    to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to 
+    max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max 
+    out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
+    the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens
+    This is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This 
+    is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a 
+    dummy text to max out the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy 
+    text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text 
+    to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to 
+    max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max 
+    out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
+    the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
     number of tokens. This is a dummy text to max out the number of tokens 
+    This is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This 
+    is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a 
+    dummy text to max out the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy 
+    text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text 
+    to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to 
+    max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max 
+    out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
+    the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens.
+    This is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This 
+    is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a 
+    dummy text to max out the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy 
+    text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text 
+    to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to 
+    max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max 
+    out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
+    the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens
+    This is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This 
+    is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a 
+    dummy text to max out the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy 
+    text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text 
+    to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to 
+    max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max 
+    out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
+    the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens
+    This is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This 
+    is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a 
+    dummy text to max out the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy 
+    text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text 
+    to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to 
+    max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max 
+    out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
+    the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens 
+    This is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This 
+    is a dummy text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a 
+    dummy text to max out the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy 
+    text to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text 
+    to max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to 
+    max out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max 
+    out the number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out 
+    the number of tokens .This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens. This is a dummy text to max out the 
+    number of tokens. This is a dummy text to max out the number of tokens    
 
 '''
 
-max_char_tweet = 140
+max_char_tweet = 512
+
+max_batch_size = 25
 
 data_path = 'E:/thesis/data'
+
+model_path = 'E:/thesis/train/model'
+
+exclude_path = 'E:/thesis/train/exclude'
