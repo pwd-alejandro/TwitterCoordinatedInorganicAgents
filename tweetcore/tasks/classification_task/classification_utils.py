@@ -29,6 +29,7 @@ def make_report(model=None,
                 personalized: dict = None,
                 scale: float = 5,
                 pad: int = 2,
+                plot_parameters: dict = {},
                 **kwargs):
     for i in include:
         if i not in ['roc', 'pr', 'lift', 'class_report', 'top_features']:
@@ -71,13 +72,13 @@ def make_report(model=None,
             fpr, tpr, thresholds = roc_curve(y_true, y_prob)
             roc_auc = auc(fpr, tpr)
             ax.plot(fpr, tpr, lw=1, alpha=0.3, label='(AUC = %0.2f)' % roc_auc)
-            ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Chance', alpha=.8)
+            ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Chance', alpha=0.8)
             ax.set_xlim([-0.05, 1.05])
             ax.set_ylim([-0.05, 1.05])
-            ax.set_xlabel('False Positive Rate')
-            ax.set_ylabel('True Positive Rate')
-            ax.set_title('ROC curve')
-            ax.legend(loc='best')
+            ax.set_xlabel('False Positive Rate', **plot_parameters)
+            ax.set_ylabel('True Positive Rate', **plot_parameters)
+            ax.set_title('ROC curve', **plot_parameters)
+            ax.legend(loc='best', **plot_parameters)
         elif include[i] == 'pr':
             ax1 = plt.subplot(rows, columns, i + 1)
             precision, recall, thresholds = precision_recall_curve(y_true, y_prob)
@@ -87,17 +88,17 @@ def make_report(model=None,
                      alpha=.8)
             ax1.set_xlim([-0.05, 1.05])
             ax1.set_ylim([-0.05, 1.05])
-            ax1.set_ylabel('Precision')
-            ax1.set_xlabel('Recall')
-            ax1.set_title('PR curve ')
-            ax1.legend(loc='best')
+            ax1.set_ylabel('Precision', **plot_parameters)
+            ax1.set_xlabel('Recall', **plot_parameters)
+            ax1.set_title('PR curve', **plot_parameters)
+            ax1.legend(loc='best', **plot_parameters)
         elif include[i] == 'lift':
             df_dict = {'actual': list(y_true), 'pred': list(y_prob)}
             df = pd.DataFrame(df_dict)
             pred_ranks = pd.qcut(df['pred'].rank(method='first'), 100, labels=False)
             pred_percentiles = df.groupby(pred_ranks).mean()
             ax2 = plt.subplot(rows, columns, i + 1)
-            ax2.set_title('Lift Chart', y=1)
+            ax2.set_title('Lift Chart', y=1, **plot_parameters)
             ax2.plot(np.arange(.01, 1.01, .01),
                      np.array(pred_percentiles['pred']),
                      color='darkorange',
@@ -115,11 +116,11 @@ def make_report(model=None,
                      lw=2,
                      linestyle='--',
                      label='No skill')
-            ax2.set_ylabel('Target Average')
-            ax2.set_xlabel('Population Percentile')
+            ax2.set_ylabel('Target Average', **plot_parameters)
+            ax2.set_xlabel('Population Percentile', **plot_parameters)
             ax2.set_xlim([-0.05, 1.05])
             ax2.set_ylim([-0.05, 1.05])
-            ax2.legend(loc="best")
+            ax2.legend(loc="best", **plot_parameters)
         elif include[i] == 'class_report':
             report = classification_report(y_test, y_pre, output_dict=True)
             acc = round(report['accuracy'], 4)
@@ -143,7 +144,7 @@ def make_report(model=None,
                       bbox=[0.22, 0.16, 0.56, 0.21],
                       edges='open')
             ax3.set_axis_off()
-            ax3.set_title('Classification report')
+            ax3.set_title('Classification report', **plot_parameters)
 
     fig.tight_layout(pad=pad)
     plt.show()
@@ -203,7 +204,7 @@ def bagging_models(models: tuple,
         i = 0
         while i < n_models:
             y_binary_i = np.zeros(y_prob[0].shape[0])
-            y_binary_i[y_binary_i >= thresholds[i]] = 1
+            y_binary_i[y_prob[i] >= thresholds[i]] = 1
             y_binary = y_binary * y_binary_i
             i += 1
 
@@ -263,7 +264,6 @@ def bagging_models(models: tuple,
         for i in range(n_models):
             prob_test[:, i, :] += models[i].predict_proba(test_data[i])
 
-        # y_prob_perceptron = np.array([i[0] for i in perceptron.predict(prob_test)])
         y_prob_perceptron = np.array([expit(i[0]) for i in perceptron.predict(prob_test)])
 
         return y_prob_perceptron, None

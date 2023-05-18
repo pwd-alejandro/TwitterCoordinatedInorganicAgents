@@ -106,10 +106,12 @@ dummy_tweet = '''
 
 max_char_tweet = 512
 
-max_batch_size = 25
+max_batch_size = 23
 
 data_path = 'E:/thesis/data'
 
 model_path = 'E:/thesis/train/model'
 
 exclude_path = 'E:/thesis/train/exclude'
+
+emb_dim = 768

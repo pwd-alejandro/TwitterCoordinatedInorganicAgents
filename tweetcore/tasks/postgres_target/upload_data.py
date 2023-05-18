@@ -103,6 +103,9 @@ def write_postgre_table_back(configuration: dict = None,
                 print(error.__class__.__name__)
                 print(error)
                 print(10 * '------------')
+
+            connection.close()
+            engine.dispose()
         else:
             print('--- La tabla no existe, será creada por primera vez ---')
             try:
@@ -155,3 +158,4 @@ def write_postgre_table(configuration: dict = None,
                                  table_name=table_name,
                                  schema=schema,
                                  if_exists_then_wat=if_exists_then_wat)
+        print('--- 1/1 ---')
